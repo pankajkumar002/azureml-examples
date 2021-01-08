@@ -1,4 +1,5 @@
 # imports
+import time
 import mlflow
 import argparse
 
@@ -57,9 +58,15 @@ params = {
     "max_depth": args.max_depth,
 }
 
+t1 = time.time() # start of interesting part
 dtrain = xgb.dask.DaskDMatrix(c, X, y)
 model = xgb.dask.train(c, params, dtrain, num_boost_round=num_boost_round)
-print(model)
+t2 = time.time() # end of interesting part
+mlflow.log_metric("training_time", t2 - t1)
+
+# save model
+print("saving model...")
+mlflow.xgboost.log_model(model["booster"], "./outputs/model")
 
 # predict on test data
 print("making predictions...")
@@ -68,6 +75,3 @@ X_test = df_test[[col for col in cols if "HasDetections" not in col]].values.per
 y_pred = xgb.dask.predict(c, model, X_test)
 y_pred.to_dask_dataframe().to_csv("./outputs/predictions.csv")
 
-# save model
-print("saving model...")
-mlflow.xgboost.log_model(model["booster"], "./outputs/model")
