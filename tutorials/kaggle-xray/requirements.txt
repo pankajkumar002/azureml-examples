@@ -1,0 +1,11 @@
+numpy
+pandas
+scikit-learn
+dask==2.30.0
+distributed==2.30.0
+adlfs
+fastparquet
+xarray
+pydicom
+matplotlib
+seaborn
